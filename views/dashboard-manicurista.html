@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard Manicurista - Uñas Spa Yaneth Jiménez</title>
+    <link rel="stylesheet" href="/css/styles.css" />
+    <link rel="stylesheet" href="/css/dashboard.css" />
+    <link rel="stylesheet" href="/css/responsive.css" />
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="theme-color" content="#f7d0cb">
+    <script>
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    </script>
+</head>
+
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu" onclick="toggleMobileMenu()">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+    </button>
+
+    <!-- Sidebar Backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <div class="dashboard-container">
+        <!-- MODAL REGISTRO/EDICIÓN -->
+        <div id="modal-registro"
+            style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1001; justify-content: center; align-items: center;">
+            <div
+                style="background: white; border-radius: 8px; width: 90%; max-width: 500px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
+
+                <div class="modal-header"
+                    style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); padding: 1rem; display: flex; justify-content: space-between; align-items: center; color: white;">
+                    <h4 id="modal-registro-titulo" style="margin: 0; font-size: 1.2rem;"><i
+                            class="fa-solid fa-pen-to-square"></i> Nuevo Registro</h4>
+                    <button onclick="cerrarModalRegistro()"
+                        style="background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer;"><i
+                            class="fa-solid fa-xmark"></i></button>
+                </div>
+
+                <div class="modal-body" style="padding: 1.5rem;">
+                    <form id="form-cuadre" onsubmit="registrarCuadre(event)">
+                        <input type="hidden" id="cuadre-id">
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Fecha</label>
+                            <input type="date" id="cuadre-fecha" class="form-control" required
+                                style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Descripción del
+                                Servicio</label>
+                            <input type="text" id="cuadre-desc" class="form-control"
+                                placeholder="Ej: Manicura Semipermanente" required
+                                style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Valor
+                                Cobrado</label>
+                            <input type="number" id="cuadre-valor" class="form-control" placeholder="0" required
+                                style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                        </div>
+
+                        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                            <button type="button" onclick="cerrarModalRegistro()" class="btn btn-secondary"
+                                style="padding: 0.8rem 1.5rem; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                Cancelar
+                            </button>
+                            <button type="submit" id="btn-cuadre-submit" class="btn btn-primary"
+                                style="padding: 0.8rem 1.5rem; background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                                <span><i class="fa-solid fa-floppy-disk"></i></span> Guardar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL GENÉRICO -->
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2><i class="fa-solid fa-spa"></i> Mi Portal</h2>
+                    <button id="sidebar-toggle" onclick="toggleSidebar()" class="btn-icon"
+                        style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i
+                            class="fa-solid fa-bars"></i></button>
+                </div>
+                <p id="user-welcome">Hola, Manicurista</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#agenda" class="nav-item active" onclick="cambiarSeccion('agenda')">
+                    <span class="nav-icon"><i class="fa-solid fa-calendar-days"></i></span>
+                    <span>Mi Agenda</span>
+                </a>
+                <a href="#comisiones" class="nav-item" onclick="cambiarSeccion('comisiones')">
+                    <span class="nav-icon"><i class="fa-solid fa-money-bill-wave"></i></span>
+                    <span>Mis Comisiones</span>
+                </a>
+                <a href="#cuadre" class="nav-item" onclick="cambiarSeccion('cuadre')">
+                    <span class="nav-icon"><i class="fa-solid fa-file-pen"></i></span>
+                    <span>Mi Cuadre</span>
+                </a>
+                <a href="#perfil" class="nav-item" onclick="cambiarSeccion('perfil')">
+                    <span class="nav-icon"><i class="fa-solid fa-user"></i></span>
+                    <span>Mi Perfil</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="cerrarSesion()">
+                    <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+                    <span class="logout-text">Cerrar Sesión</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="main-content">
+            <!-- HEADER -->
+            <header class="content-header">
+                <h1 id="section-title">Mi Agenda</h1>
+            </header>
+
+            <!-- SECCIÓN: MI AGENDA -->
+            <!-- SECCIÓN: MI AGENDA (CALENDARIO) -->
+            <section id="seccion-agenda" class="content-section active">
+                <div class="agenda-header">
+                    <div class="agenda-controles">
+                        <div class="vista-toggle">
+                            <button id="btn-vista-semanal" class="btn-toggle active"
+                                onclick="cambiarVistaAgenda('semanal')">
+                                Semanal
+                            </button>
+                            <button id="btn-vista-mensual" class="btn-toggle" onclick="cambiarVistaAgenda('mensual')">
+                                Mensual
+                            </button>
+                        </div>
+                        <div class="navegacion-fecha">
+                            <button class="btn-nav" onclick="navegarAgenda(-1)"><i
+                                    class="fa-solid fa-chevron-left"></i></button>
+                            <span id="agenda-fecha-titulo">Enero 2026</span>
+                            <button class="btn-nav" onclick="navegarAgenda(1)"><i
+                                    class="fa-solid fa-chevron-right"></i></button>
+                            <button class="btn-hoy" onclick="irAHoy()">Hoy</button>
+                        </div>
+                    </div>
+                    <!-- Filtro visual (Solo muestra al usuario actual) -->
+                    <div class="agenda-filtros">
+                        <label>Manicurista:</label>
+                        <select id="agenda-filtro-manicurista" class="filter-input" disabled>
+                            <option value="">Cargando...</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Calendario Semanal -->
+                <div id="calendario-semanal" class="calendario-container">
+                    <div id="agenda-loader" class="loader-center hidden">
+                        <div class="spinner"></div>
+                        <p>Cargando agenda...</p>
+                    </div>
+                    <!-- Contenedor para la leyenda (se llena dinámicamente) -->
+                    <div id="leyenda-manicuristas-container"></div>
+
+                    <div id="calendario-semanal-grid" class="calendario-grid"></div>
+                </div>
+
+                <!-- Calendario Mensual -->
+                <div id="calendario-mensual" class="calendario-container hidden">
+                    <div id="calendario-mensual-grid" class="calendario-mensual-grid"></div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: MIS COMISIONES -->
+            <section id="seccion-comisiones" class="content-section">
+
+                <!-- Header Estilo Admin -->
+                <div class="section-header"
+                    style="background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%); color: white; padding: 1rem 1.5rem; border-radius: 8px 8px 0 0; display: flex; justify-content: space-between; align-items: center;">
+                    <h3
+                        style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: white;">
+                        💰 Filtros de Comisiones</h3>
+                </div>
+
+                <!-- Filtros de Comisiones (Estilo Admin) -->
+                <div class="filters-container"
+                    style="background: white; padding: 1.5rem; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 2rem;">
+
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                        <!-- Tipo de Filtro -->
+                        <div class="form-group" style="min-width: 150px;">
+                            <label
+                                style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Filtrar
+                                por:</label>
+                            <select id="filtro-comision-tipo" class="form-control"
+                                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                                onchange="cambiarTipoFiltroComision()">
+                                <option value="mes">Mes</option>
+                                <option value="semana">Semana</option>
+                                <option value="rango">Rango de Fechas</option>
+                            </select>
+                        </div>
+
+                        <!-- Opción MES -->
+                        <div id="filtro-mes-container" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <div class="form-group" style="min-width: 150px;">
+                                <label
+                                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Mes:</label>
+                                <select id="filtro-comision-mes" class="form-control"
+                                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="1">Enero</option>
+                                    <option value="2">Febrero</option>
+                                    <option value="3">Marzo</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Mayo</option>
+                                    <option value="6">Junio</option>
+                                    <option value="7">Julio</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="min-width: 100px;">
+                                <label
+                                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Año:</label>
+                                <select id="filtro-comision-anio" class="form-control"
+                                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <!-- Se llena con JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Opción SEMANA -->
+                        <div id="filtro-semana-container" style="display: none;">
+                            <div class="form-group" style="min-width: 250px;">
+                                <label
+                                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Semana:</label>
+                                <select id="filtro-comision-semana" class="form-control"
+                                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <!-- Se llena con JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Opción RANGO -->
+                        <div id="filtro-rango-container" class="responsive-filter-container" style="display: none;">
+                            <div class="responsive-date-row">
+                                <div class="form-group">
+                                    <label
+                                        style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Desde:</label>
+                                    <input type="date" id="filtro-comision-desde" class="form-control"
+                                        style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                        style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Hasta:</label>
+                                    <input type="date" id="filtro-comision-hasta" class="form-control"
+                                        style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón Aplicar -->
+                        <div class="form-group">
+                            <button id="btn-filtrar-comis" class="btn btn-primary" onclick="cargarComisiones()"
+                                style="padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.5rem; min-height: 38px;">
+                                <span>🔍</span> Aplicar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 0.85rem; color: #666; padding-top: 0.5rem; border-top: 1px solid #eee;">
+                        <span style="margin-right: 1rem;">ℹ️ Solo se muestran citas <strong>Completadas</strong></span>
+                        <span>💡 Se liquida semanalmente</span>
+                    </div>
+                </div>
+
+                <div class="metric-card metric-comisiones" style="max-width: 400px; margin-bottom: 20px;">
+                    <div class="metric-icon">💰</div>
+                    <div class="metric-info">
+                        <span class="metric-label">Mis Ganancias (Periodo Seleccionado)</span>
+                        <span class="metric-value" id="comis-total-mes">$0</span>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table" id="tabla-mis-comisiones">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Servicio</th>
+                                <th>Valor Servicio</th>
+                                <th>% Comisión</th>
+                                <th>Mi Ganancia</th>
+                            </tr>
+                        </thead>
+                        <tbody id="comis-tbody">
+                            <tr>
+                                <td colspan="5" class="text-center">Cargando...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- DEDUCCIONES Y TOTALES -->
+                <div style="margin-top: 30px;">
+                    <h4 style="border-bottom: 2px solid #ddd; padding-bottom: 5px; margin-bottom: 15px;">📉 Deducciones
+                        y Total a Pagar</h4>
+
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <div class="metric-card" style="background: #fff3cd; color: #856404; max-width: 300px;">
+                            <div class="metric-info">
+                                <span class="metric-label">Total Deducciones</span>
+                                <span class="metric-value" id="comis-total-deducciones">$0</span>
+                            </div>
+                        </div>
+
+                        <div class="metric-card" style="background: #d4edda; color: #155724; max-width: 300px;">
+                            <div class="metric-info">
+                                <span class="metric-label">Total a Pagar (Neto)</span>
+                                <span class="metric-value" id="comis-total-pagar" style="font-weight: bold;">$0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <h5>Detalle de Deducciones</h5>
+                        <table class="data-table" id="tabla-mis-deducciones">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Descripción</th>
+                                    <th>Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deducciones-tbody">
+                                <tr>
+                                    <td colspan="3" class="text-center">Sin deducciones</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: MI CUADRE (REPORTES) -->
+            <section id="seccion-cuadre" class="content-section">
+                <div class="alert alert-info">
+                    💡 Registra aquí cada servicio que realices y cobres para llevar tu control personal.
+                </div>
+
+                <!-- Botón Nuevo Registro (Abre Modal) -->
+                <div style="margin-bottom: 2rem; display: flex; justify-content: flex-end;">
+                    <button class="btn btn-primary" onclick="abrirModalRegistro()"
+                        style="padding: 0.8rem 1.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <span>➕</span> Nuevo Registro
+                    </button>
+                </div>
+
+                <!-- Filtros de Cuadre (Estilo Admin) -->
+                <div class="filters-container"
+                    style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); margin-bottom: 2rem;">
+
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end;">
+                        <!-- Tipo de Filtro -->
+                        <div class="form-group" style="min-width: 150px;">
+                            <label
+                                style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Filtrar
+                                por:</label>
+                            <select id="filtro-cuadre-tipo" class="form-control"
+                                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                                onchange="cambiarTipoFiltroCuadre()">
+                                <option value="hoy">Hoy</option>
+                                <option value="mes">Mes</option>
+                                <option value="semana">Semana</option>
+                                <option value="rango">Rango de Fechas</option>
+                            </select>
+                        </div>
+
+                        <!-- Opción MES -->
+                        <div id="filtro-cuadre-mes-container" style="display: none; gap: 1rem; flex-wrap: wrap;">
+                            <div class="form-group" style="min-width: 150px;">
+                                <label
+                                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Mes:</label>
+                                <select id="filtro-cuadre-mes" class="form-control"
+                                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <option value="1">Enero</option>
+                                    <option value="2">Febrero</option>
+                                    <option value="3">Marzo</option>
+                                    <option value="4">Abril</option>
+                                    <option value="5">Mayo</option>
+                                    <option value="6">Junio</option>
+                                    <option value="7">Julio</option>
+                                    <option value="8">Agosto</option>
+                                    <option value="9">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="min-width: 100px;">
+                                <label
+                                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Año:</label>
+                                <select id="filtro-cuadre-anio" class="form-control"
+                                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <!-- JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Opción SEMANA -->
+                        <div id="filtro-cuadre-semana-container" style="display: none;">
+                            <div class="form-group" style="min-width: 250px;">
+                                <label
+                                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Semana:</label>
+                                <select id="filtro-cuadre-semana" class="form-control"
+                                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                                    <!-- JS -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Opción RANGO -->
+                        <div id="filtro-cuadre-rango-container" class="responsive-filter-container"
+                            style="display: none;">
+                            <div class="responsive-date-row">
+                                <div class="form-group">
+                                    <label
+                                        style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Desde:</label>
+                                    <input type="date" id="filtro-cuadre-desde" class="form-control"
+                                        style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                                </div>
+                                <div class="form-group">
+                                    <label
+                                        style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Hasta:</label>
+                                    <input type="date" id="filtro-cuadre-hasta" class="form-control"
+                                        style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; width: 100%;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón Aplicar -->
+                        <div class="form-group">
+                            <button class="btn btn-primary" onclick="cargarReportes()"
+                                style="padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.5rem; min-height: 38px;">
+                                <span>🔍</span> Aplicar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Reportes -->
+                <div class="table-container">
+                    <h4>📜 Registros</h4>
+                    <table class="data-table" id="tabla-cuadre">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Descripción</th>
+                                <th>Valor Total</th>
+                                <th>% Comisión</th>
+                                <th>Mi Ganancia</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuadre-tbody">
+                            <!-- Registros -->
+                        </tbody>
+                        <tfoot>
+                            <tr style="font-weight: bold; background: #f8f9fa;">
+                                <td colspan="2" class="text-right">TOTALES:</td>
+                                <td id="cuadre-total-dia" class="text-info">$0</td>
+                                <td></td>
+                                <td id="cuadre-total-ganancia" class="text-success">$0</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN: MI PERFIL -->
+            <section id="seccion-perfil" class="content-section">
+                <div class="profile-card"
+                    style="background: white; padding: 30px; border-radius: 12px; max-width: 500px; margin: 0 auto; text-align: center;">
+                    <div class="profile-avatar" style="font-size: 4rem; margin-bottom: 20px;">👩‍🎨</div>
+                    <h3 id="perfil-nombre">Cargando...</h3>
+                    <p id="perfil-email" class="text-muted">...</p>
+
+                    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+
+                    <form id="form-password" onsubmit="cambiarPassword(event)" style="text-align: left;">
+                        <h4>🔒 Cambiar Contraseña</h4>
+                        <div class="form-group">
+                            <label>Nueva Contraseña</label>
+                            <input type="password" id="new-pass" class="form-control" placeholder="Mínimo 6 caracteres"
+                                required>
+                        </div>
+                        <button type="submit" class="btn btn-secondary"
+                            style="width: 100%; margin-top: 10px;">Actualizar Contraseña</button>
+                    </form>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/dashboard-manicurista.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Cuenta - Uñas Spa Yaneth Jiménez</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Estilos específicos para Cliente (Mobile First simplificado) */
+        .client-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .client-welcome {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .container-client {
+            padding: 1rem;
+            max-width: 800px;
+            /* Ancho máximo para vista escritorio */
+            margin: 0 auto;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin-bottom: 2rem;
+            border: 1px solid #ffebee;
+        }
+
+        .btn-big-action {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(233, 30, 99, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-big-action:active {
+            transform: scale(0.98);
+        }
+
+        /* Wizard de Reserva */
+        .booking-wizard {
+            display: none;
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+
+        .booking-step {
+            display: none;
+        }
+
+        .booking-step.active {
+            display: block;
+        }
+
+        .wizard-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Lists */
+        .citas-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .cita-card-client {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 5px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: relative;
+        }
+
+        .cita-card-client.status-pendiente {
+            border-left-color: #ffc107;
+        }
+
+        .cita-card-client.status-confirmada {
+            border-left-color: #17a2b8;
+        }
+
+        .cita-card-client.status-completada {
+            border-left-color: #28a745;
+        }
+
+        .cita-card-client.status-cancelada {
+            border-left-color: #dc3545;
+            opacity: 0.7;
+        }
+
+        .service-option,
+        .manicurist-option,
+        .time-slot {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .service-option:hover,
+        .manicurist-option:hover,
+        .time-slot:hover {
+            background-color: #fff0f5;
+            border-color: var(--primary-color);
+        }
+
+        .service-option.selected,
+        .manicurist-option.selected,
+        .time-slot.selected {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+            display: inline-block;
+        }
+    </style>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#f7d0cb">
+    <script>
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+    </script>
+</head>
+
+<body style="background-color: #f8f9fa;">
+
+    <header class="client-header">
+        <div class="client-welcome">
+            Hola, <span id="user-name">Cliente</span> 👋
+        </div>
+        <button onclick="cerrarSesion()" style="background:none; border:none; color:white; font-size:0.9rem;">
+            <i class="fas fa-sign-out-alt"></i> Salir
+        </button>
+    </header>
+
+    <div class="container-client">
+
+        <!-- Acciones Principales -->
+        <div class="action-card">
+            <h3 style="margin-bottom: 1rem; color: #555;">¿Lista para consentirte?</h3>
+            <button class="btn-big-action" onclick="abrirWizardReserva()">
+                <i class="fas fa-calendar-plus"></i> Agendar Nueva Cita
+            </button>
+        </div>
+
+        <!-- Próximas Citas -->
+        <section style="margin-bottom: 2rem;">
+            <h2 class="section-title">Mis Próximas Citas</h2>
+            <div id="proximas-citas-list" class="citas-list">
+                <div class="text-center text-muted">Cargando...</div>
+            </div>
+        </section>
+
+        <!-- Historial -->
+        <section>
+            <h2 class="section-title">Historial Reciente</h2>
+            <div id="historial-citas-list" class="citas-list">
+                <div class="text-center text-muted">Cargando...</div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Wizard Overlay & Modal -->
+    <div class="wizard-overlay" id="wizard-overlay" onclick="cerrarWizard()"></div>
+    <div class="booking-wizard" id="booking-wizard">
+        <div style="text-align: right; margin-bottom: 10px;">
+            <button onclick="cerrarWizard()"
+                style="background:none; border:none; font-size:1.5rem; color:#666;">×</button>
+        </div>
+
+        <!-- Paso 1: Servicios -->
+        <div class="booking-step active" id="step-1">
+            <h3>1. Elige tu Servicio ✨</h3>
+            <div id="lista-servicios" style="max-height: 300px; overflow-y: auto; margin-top: 1rem;">
+                <!-- JS -->
+            </div>
+            <div style="margin-top: 1rem; text-align: right;">
+                <button class="btn btn-secondary" disabled>Anterior</button>
+                <button class="btn btn-primary" id="btn-next-1" disabled onclick="nextStep(2)">Siguiente ➡</button>
+            </div>
+        </div>
+
+        <!-- Paso 2: Manicurista -->
+        <div class="booking-step" id="step-2">
+            <h3>2. Elige tu Profesional 👩‍🦰</h3>
+            <div id="lista-manicuristas" style="margin-top: 1rem;">
+                <!-- JS -->
+            </div>
+            <div style="margin-top: 1rem; display: flex; justify-content: space-between;">
+                <button class="btn btn-secondary" onclick="prevStep(1)">⬅ Anterior</button>
+                <button class="btn btn-primary" id="btn-next-2" disabled onclick="nextStep(3)">Siguiente ➡</button>
+            </div>
+        </div>
+
+        <!-- Paso 3: Fecha y Hora -->
+        <div class="booking-step" id="step-3">
+            <h3>3. Fecha y Hora 📅</h3>
+            <div class="form-group">
+                <label>Selecciona el día:</label>
+                <input type="date" id="input-fecha-reserva" class="form-control" style="width:100%; padding:10px;">
+            </div>
+            <div id="loader-horarios" style="display:none; text-align:center; margin:1rem;">
+                <i class="fas fa-spinner fa-spin"></i> Buscando espacios...
+            </div>
+            <div id="lista-horarios"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; margin-top: 1rem;">
+                <!-- JS -->
+            </div>
+            <div style="margin-top: 1rem; display: flex; justify-content: space-between;">
+                <button class="btn btn-secondary" onclick="prevStep(2)">⬅ Anterior</button>
+                <button class="btn btn-primary" id="btn-next-3" disabled onclick="nextStep(4)">Resumen ➡</button>
+            </div>
+        </div>
+
+        <!-- Paso 4: Confirmación -->
+        <div class="booking-step" id="step-4">
+            <h3>4. Confirmar Reserva ✅</h3>
+            <div class="action-card" style="margin: 0; text-align: left; padding: 1rem;">
+                <p><strong>Servicio:</strong> <span id="resumen-servicio"></span></p>
+                <p><strong>Profesional:</strong> <span id="resumen-manicurista"></span></p>
+                <p><strong>Fecha:</strong> <span id="resumen-fecha"></span></p>
+                <p><strong>Hora:</strong> <span id="resumen-hora"></span></p>
+                <p><strong>Precio Estimado:</strong> <span id="resumen-precio"
+                        style="color:var(--primary-color); font-weight:bold;"></span></p>
+            </div>
+            <div style="margin-top: 1rem; display: flex; justify-content: space-between;">
+                <button class="btn btn-secondary" onclick="prevStep(3)">⬅ Volver</button>
+                <button class="btn btn-big-action" id="btn-confirmar" style="font-size: 1rem; padding: 0.8rem;"
+                    onclick="confirmarReserva()">
+                    🔔 Confirmar Cita
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/dashboard-cliente.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.on('calendario_actualizado', (data) => {
+            console.log('socket: calendario_actualizado', data);
+            // Si el cliente está viendo "Mis Citas", recargar
+            if (typeof cargarMisCitas === 'function') {
+                cargarMisCitas();
+                // Opcional: mostrar toast discreto
+                /*
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+                Toast.fire({ icon: 'info', title: 'Citas actualizadas' });
+                */
+            } else {
+                console.warn('cargarMisCitas no está definida');
+            }
+        });
+    </script>
+</body>
+
+</html>

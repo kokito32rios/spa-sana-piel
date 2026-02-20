@@ -1,0 +1,547 @@
+/* =============================================
+   MOBILE MENU TOGGLE & BACKDROP
+   ============================================= */
+.mobile-menu-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1001;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 8px;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+.mobile-menu-toggle:active {
+    transform: scale(0.95);
+}
+
+.hamburger-line {
+    width: 24px;
+    height: 3px;
+    background: #444;
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* Animación del hamburguesa cuando está activo */
+.mobile-menu-toggle.active .hamburger-line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(2) {
+    opacity: 0;
+}
+
+.mobile-menu-toggle.active .hamburger-line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+.sidebar-backdrop {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    backdrop-filter: blur(2px);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-backdrop.active {
+    display: block;
+    opacity: 1;
+}
+
+/* =============================================
+   RESPONSIVE DESIGN - MOBILE & TABLET
+   ============================================= */
+
+/* TABLET & BELOW - Menú móvil activado */
+@media (max-width: 1024px) {
+    .mobile-menu-toggle {
+        display: flex;
+    }
+
+    .sidebar {
+        position: fixed;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1000;
+        width: 280px;
+        height: 100vh;
+        /* overflow-y: auto;  <-- REMOVED to keep footer visible */
+        display: flex;
+        flex-direction: column;
+    }
+
+    #sidebar-toggle {
+        display: none !important;
+    }
+
+    .sidebar.sidebar-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    /* Ajustar header */
+    .content-header {
+        padding: 15px 20px;
+        margin-bottom: 20px;
+    }
+
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+
+    /* Métricas en 2 columnas */
+    .metrics-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 15px;
+    }
+
+    /* Botones táctiles más grandes */
+    .btn {
+        min-height: 44px;
+        padding: 12px 20px;
+    }
+
+    .btn-icon {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 12px;
+    }
+
+    /* Inputs más grandes para touch */
+    .form-input,
+    .form-control,
+    .filter-input,
+    select {
+        min-height: 44px;
+        font-size: 16px;
+        /* Evita zoom automático en iOS */
+    }
+}
+
+/* TABLET ESPECÍFICO */
+@media (min-width: 768px) and (max-width: 1023px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+        min-width: 800px;
+    }
+}
+
+/* MOBILE - Cambios radicales de layout */
+@media (max-width: 767px) {
+
+    /* Main content con menos padding */
+    .main-content {
+        padding: 15px;
+    }
+
+    /* Header apilado */
+    .content-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+        padding: 15px;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Filtros completamente apilados */
+    .filters-bar,
+    .filters-container {
+        padding: 15px;
+    }
+
+    .filters-container>div {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 15px;
+    }
+
+    .filters-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group,
+    .form-group {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .filter-input {
+        width: 100%;
+    }
+
+    /* Rango de fechas en móvil - apilado vertical */
+    #dash-grupo-rango>div,
+    #gastos-grupo-rango>div,
+    #filtro-rango-container>div {
+        flex-direction: column !important;
+    }
+
+    #dash-grupo-rango>div>div,
+    #gastos-grupo-rango>div>div,
+    #filtro-rango-container>div>div {
+        width: 100% !important;
+    }
+
+    /* Métricas 1 columna */
+    .metrics-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Tablas responsive - scroll horizontal */
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -15px;
+        padding: 0 15px;
+    }
+
+    .data-table {
+        min-width: 700px;
+    }
+
+    .table-container::after {
+        content: '← Desliza para ver más →';
+        display: block;
+        text-align: center;
+        padding: 10px;
+        color: var(--text-light);
+        font-size: 0.85rem;
+        font-style: italic;
+    }
+
+    /* Modales full screen en móvil */
+    /* Modales full screen en móvil - TODOS LOS MODALES */
+    .modal-large,
+    .modal-content,
+    .modal-box,
+    .modal-sm,
+    .modal-md {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        border-radius: 0 !important;
+        margin: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+    }
+
+    .modal-overlay {
+        padding: 0;
+        align-items: flex-start;
+        /* Alinear al top para asegurar full screen */
+    }
+
+    .modal-header {
+        flex-shrink: 0;
+        /* No encoger el header */
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .modal-body {
+        flex: 1;
+        /* Ocupar espacio restante */
+        overflow-y: auto;
+        /* Scroll interno */
+        padding: 15px;
+        max-height: none !important;
+        /* Quitar restricción si existe */
+    }
+
+    .modal-footer {
+        flex-shrink: 0;
+        /* No encoger footer */
+        padding: 15px;
+        border-top: 1px solid #eee;
+        background: white;
+        /* Asegurar fondo */
+    }
+
+    .form-row {
+        grid-template-columns: 1fr !important;
+        gap: 15px;
+    }
+
+    /* Cuadre de caja responsive */
+    .cuadre-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Agenda controls apilados */
+    .agenda-header {
+        flex-direction: column;
+    }
+
+    .agenda-controles {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .vista-toggle,
+    .navegacion-fecha {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Calendario responsive */
+    /* Weekly Grid (Block/Flex based) */
+    .calendario-grid {
+        display: block !important;
+        overflow-x: auto;
+    }
+
+    .calendario-grid>* {
+        min-width: 600px;
+    }
+
+    /* Monthly Grid (Grid based) */
+    /* Wrapper container needs overflow */
+    #calendario-mensual {
+        overflow-x: auto;
+        display: block;
+        /* Ensure it behaves as a block container for scrolling */
+    }
+
+    /* Grid itself needs min-width but MUST stay grid */
+    .calendario-mensual-grid {
+        display: grid !important;
+        min-width: 700px;
+        /* Force scroll trigger */
+    }
+}
+
+/* MOBILE SMALL - Optimizaciones extra */
+@media (max-width: 479px) {
+    .content-header h1 {
+        font-size: 1.3rem;
+    }
+
+    .metric-card {
+        padding: 15px;
+    }
+
+    .metric-value {
+        font-size: 1.3rem;
+    }
+
+    .btn {
+        font-size: 0.9rem;
+        padding: 10px 16px;
+    }
+
+    /* Modales más compactos */
+    .modal-header h3 {
+        font-size: 1.2rem;
+    }
+
+    .modal-box {
+        padding: 25px;
+        max-width: 90%;
+    }
+
+    .modal-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 2rem;
+    }
+
+    /* Tablas más compactas */
+    .data-table th,
+    .data-table td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+
+    /* Reducir tamaño de badges */
+    .badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+}
+
+/* LANDSCAPE MODE - Teléfonos horizontales */
+@media (max-height: 500px) and (orientation: landscape) {
+    .sidebar {
+        width: 240px;
+    }
+
+    .sidebar-header,
+    .sidebar-footer {
+        padding: 15px;
+    }
+
+    .nav-item {
+        padding: 10px 15px;
+    }
+
+    .modal-large {
+        max-height: 95vh;
+    }
+}
+
+/* DESKTOP LARGE - Optimizaciones para pantallas grandes */
+@media (min-width: 1440px) {
+    .dashboard-container {
+        max-width: 1920px;
+        margin: 0 auto;
+    }
+
+    .main-content {
+        padding: 40px;
+    }
+
+    .metrics-grid {
+        grid-template-columns: repeat(4, 1fr) !important;
+    }
+
+    .content-header h1 {
+        font-size: 2rem;
+    }
+}
+
+/* PRINT STYLES - Para impresión */
+@media print {
+
+    .sidebar,
+    .mobile-menu-toggle,
+    .sidebar-backdrop,
+    .filters-bar,
+    .filters-container,
+    .btn,
+    .modal-overlay,
+    .table-actions {
+        display: none !important;
+    }
+
+    .main-content {
+        margin: 0;
+        padding: 0;
+    }
+
+    .table-container {
+        box-shadow: none;
+    }
+
+    .data-table {
+        font-size: 10pt;
+    }
+}
+
+/* =============================================
+   MEJORAS ESPECÍFICAS DE AGENDA MÓVIL
+   ============================================= */
+@media (max-width: 767px) {
+
+    /* Ocultar tabla original en móvil */
+    .calendario-grid {
+        display: none !important;
+    }
+
+    /* Vista de tarjeta para agenda */
+    .agenda-mobile-view {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .agenda-card {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .agenda-time {
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .agenda-details {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .agenda-client {
+        font-weight: 600;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .agenda-service {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .agenda-status {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 5px;
+        width: fit-content;
+    }
+}
+
+@media (max-width: 768px) {
+    .responsive-date-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+}

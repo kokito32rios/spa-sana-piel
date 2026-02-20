@@ -1,0 +1,1569 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin - Uñas Spa Yaneth Jiménez</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="/css/responsive.css" />
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="theme-color" content="#f7d0cb">
+  <script>
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js');
+  </script>
+</head>
+
+<body>
+  <!-- Mobile Menu Toggle -->
+  <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu">
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+    <span class="hamburger-line"></span>
+  </button>
+
+  <!-- Sidebar Backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+  <div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2><i class="fa-solid fa-spa"></i> Admin</h2>
+          <button id="sidebar-toggle" onclick="toggleSidebar()" class="btn-icon"
+            style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer;"><i
+              class="fa-solid fa-bars"></i></button>
+        </div>
+        <p id="user-welcome">Bienvenid@</p>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item" onclick="cambiarSeccion('dashboard')">
+          <span class="nav-icon"><i class="fa-solid fa-chart-line"></i></span>
+          <span>Dashboard</span>
+        </a>
+        <a href="#agendamiento" class="nav-item active" onclick="cambiarSeccion('agendamiento')">
+          <span class="nav-icon"><i class="fa-solid fa-calendar-plus"></i></span>
+          <span>Agendamiento</span>
+        </a>
+        <a href="#agenda" class="nav-item" onclick="cambiarSeccion('agenda')">
+          <span class="nav-icon"><i class="fa-solid fa-calendar-days"></i></span>
+          <span>Agenda</span>
+        </a>
+        <a href="#servicios" class="nav-item" onclick="cambiarSeccion('servicios')">
+          <span class="nav-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></span>
+          <span>Servicios</span>
+        </a>
+        <a href="#usuarios" class="nav-item" onclick="cambiarSeccion('usuarios')">
+          <span class="nav-icon"><i class="fa-solid fa-users"></i></span>
+          <span>Usuarios</span>
+        </a>
+        <a href="#comisiones" class="nav-item" onclick="cambiarSeccion('comisiones')">
+          <span class="nav-icon"><i class="fa-solid fa-money-bill-wave"></i></span>
+          <span>Comisiones</span>
+        </a>
+        <a href="#conciliacion" class="nav-item" onclick="cambiarSeccion('conciliacion')">
+          <span class="nav-icon"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+          <span>Auditoría</span>
+        </a>
+        <a href="#horarios" class="nav-item" onclick="cambiarSeccion('horarios')">
+          <span class="nav-icon"><i class="fa-solid fa-clock"></i></span>
+          <span>Horarios</span>
+        </a>
+        <a href="#galeria" class="nav-item" onclick="cambiarSeccion('galeria')">
+          <span class="nav-icon"><i class="fa-solid fa-images"></i></span>
+          <span>Galería</span>
+        </a>
+        <a href="#gastos" class="nav-item" onclick="cambiarSeccion('gastos')">
+          <span class="nav-icon"><i class="fa-solid fa-receipt"></i></span>
+          <span>Gastos</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="btn-logout" onclick="cerrarSesion()">
+          <span class="nav-icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+          <span class="logout-text">Cerrar Sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="main-content">
+      <!-- HEADER -->
+      <header class="content-header">
+        <h1 id="section-title">Gestión de Agendamiento</h1>
+        <div class="header-actions">
+          <button class="btn btn-primary" onclick="abrirModalNuevaCita()" id="btn-nueva-cita">
+            + Nueva Cita
+          </button>
+          <button class="btn btn-primary hidden" onclick="abrirModalUsuario()" id="btn-nuevo-usuario">
+            + Nuevo Usuario
+          </button>
+          <button class="btn btn-primary hidden" onclick="abrirModalServicio()" id="btn-nuevo-servicio">
+            + Nuevo Servicio
+          </button>
+          <button class="btn btn-primary hidden" onclick="abrirModalSubirImagen()" id="btn-subir-imagen">
+            + Subir Foto
+          </button>
+          <button class="btn btn-primary hidden" onclick="abrirModalGasto()" id="btn-nuevo-gasto">
+            + Nuevo Gasto
+          </button>
+        </div>
+      </header>
+
+      <!-- SECCIÓN: DASHBOARD FINANCIERO -->
+      <section id="seccion-dashboard" class="content-section">
+        <!-- Filtros estilo Comisiones -->
+        <div class="filters-container"
+          style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+          <div style="display: flex; gap: 1rem; margin-bottom: 0; flex-wrap: wrap; align-items: flex-end;">
+            <!-- Selector de Tipo de Filtro -->
+            <div class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Filtrar
+                por:</label>
+              <select id="dash-filtro-periodo" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                onchange="cambiarPeriodoDashboard()">
+                <option value="mes">Mes</option>
+                <option value="semana">Semana</option>
+                <option value="rango">Rango de Fechas</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Mes (visible por defecto) -->
+            <div id="dash-grupo-mes" class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Mes:</label>
+              <select id="dash-filtro-mes" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Semana (oculto por defecto) -->
+            <div id="dash-grupo-semana" class="form-group" style="min-width: 200px; display: none;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Semana:</label>
+              <select id="dash-filtro-semana" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <!-- Se llenará dinámicamente -->
+              </select>
+            </div>
+
+            <!-- Año (siempre visible) -->
+            <div id="dash-grupo-anio" class="form-group" style="min-width: 120px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Año:</label>
+              <select id="dash-filtro-anio" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                onchange="cambiarPeriodoDashboard()">
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Rango (oculto por defecto) -->
+            <div id="dash-grupo-rango" class="responsive-filter-container"
+              style="display: none; flex: 1; min-width: 300px;">
+              <div class="responsive-date-row">
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Desde:</label>
+                  <input type="date" id="dash-fecha-inicio" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Hasta:</label>
+                  <input type="date" id="dash-fecha-fin" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+              </div>
+            </div>
+            <!-- Filtro por Manicurista -->
+            <div class="form-group" style="min-width: 180px;">
+              <label
+                style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Manicurista:</label>
+              <select id="dash-filtro-manicurista" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Todas</option>
+                <!-- Se llena dinámicamente -->
+              </select>
+            </div>
+
+            <!-- Botón Aplicar -->
+            <div class="form-group">
+              <button class="btn btn-primary"
+                style="padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.5rem;"
+                onclick="cargarDashboard()">
+                <span>🔍</span> Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Widgets de métricas -->
+        <div class="metrics-grid">
+          <div class="metric-card metric-ingresos">
+            <div class="metric-icon">💰</div>
+            <div class="metric-info">
+              <span class="metric-label">Ingresos</span>
+              <span class="metric-value" id="dash-ingresos">$0</span>
+              <span class="metric-sub" id="dash-ingresos-cant">0 pagos</span>
+            </div>
+          </div>
+
+          <div class="metric-card metric-gastos">
+            <div class="metric-icon">📉</div>
+            <div class="metric-info">
+              <span class="metric-label">Gastos</span>
+              <span class="metric-value" id="dash-gastos">$0</span>
+              <span class="metric-sub" id="dash-gastos-detalle">Local: $0 | Deducciones: $0</span>
+            </div>
+          </div>
+
+          <div class="metric-card metric-comisiones">
+            <div class="metric-icon">👩‍💼</div>
+            <div class="metric-info">
+              <span class="metric-label">Comisiones</span>
+              <span class="metric-value" id="dash-comisiones">$0</span>
+              <span class="metric-sub">Pagadas a manicuristas</span>
+            </div>
+          </div>
+
+          <div class="metric-card metric-balance">
+            <div class="metric-icon">📊</div>
+            <div class="metric-info">
+              <span class="metric-label">Balance Neto</span>
+              <span class="metric-value" id="dash-balance">$0</span>
+              <span class="metric-sub">Ingresos - Gastos - Comisiones</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen de citas -->
+        <div class="citas-summary">
+          <div class="cita-stat">
+            <span class="cita-stat-value" id="dash-citas-total">0</span>
+            <span class="cita-stat-label">Total Citas</span>
+          </div>
+          <div class="cita-stat completadas">
+            <span class="cita-stat-value" id="dash-citas-completadas">0</span>
+            <span class="cita-stat-label">Completadas</span>
+          </div>
+          <div class="cita-stat canceladas">
+            <span class="cita-stat-value" id="dash-citas-canceladas">0</span>
+            <span class="cita-stat-label">Canceladas</span>
+          </div>
+          <div class="cita-stat pendientes">
+            <span class="cita-stat-value" id="dash-citas-pendientes">0</span>
+            <span class="cita-stat-label">Pendientes</span>
+          </div>
+        </div>
+
+        <!-- CUADRE DE CAJA -->
+        <div class="cuadre-caja">
+          <h3>🧾 Cuadre de Caja</h3>
+          <div class="cuadre-grid">
+            <div class="cuadre-item cuadre-total">
+              <span class="cuadre-icon">💵</span>
+              <div class="cuadre-info">
+                <span class="cuadre-label">Ingreso Total</span>
+                <span class="cuadre-value" id="cuadre-total">$0</span>
+              </div>
+            </div>
+            <div class="cuadre-item cuadre-efectivo">
+              <span class="cuadre-icon">💰</span>
+              <div class="cuadre-info">
+                <span class="cuadre-label">Efectivo</span>
+                <span class="cuadre-value" id="cuadre-efectivo">$0</span>
+                <span class="cuadre-sub" id="cuadre-efectivo-count">0 pagos</span>
+              </div>
+            </div>
+            <div class="cuadre-item cuadre-transferencia">
+              <span class="cuadre-icon">🏦</span>
+              <div class="cuadre-info">
+                <span class="cuadre-label">Transferencia</span>
+                <span class="cuadre-value" id="cuadre-transferencia">$0</span>
+                <span class="cuadre-sub" id="cuadre-transferencia-count">0 pagos</span>
+              </div>
+            </div>
+          </div>
+          <div class="cuadre-resumen">
+            <div class="cuadre-resumen-item">
+              <span>📤 Total Gastos del Período:</span>
+              <span class="text-danger" id="cuadre-gastos-periodo">$0</span>
+            </div>
+            <div class="cuadre-resumen-item destacado">
+              <span>🔢 Debe haber en efectivo:</span>
+              <span class="text-success" id="cuadre-debe-efectivo">$0</span>
+            </div>
+          </div>
+          <!-- Tabla de Cuadre de Caja -->
+          <div class="cuadre-tabla">
+            <h4>📋 Resumen Diario del Período</h4>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Fecha</th>
+                    <th>Total Ingresos</th>
+                    <th>Gastos</th>
+                    <th>💵 Efectivo</th>
+                    <th>🏦 Transferencia</th>
+                  </tr>
+                </thead>
+                <tbody id="cuadre-tabla-tbody">
+                  <tr>
+                    <td colspan="5" style="text-align:center;">Cargando...</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr class="cuadre-totales">
+                    <td><strong>TOTALES</strong></td>
+                    <td id="cuadre-tabla-total-ingresos"><strong>$0</strong></td>
+                    <td id="cuadre-tabla-total-gastos"><strong>$0</strong></td>
+                    <td id="cuadre-tabla-total-efectivo"><strong>$0</strong></td>
+                    <td id="cuadre-tabla-total-transferencia"><strong>$0</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico -->
+        <div class="chart-container">
+          <h3>📈 Ingresos vs Gastos por Mes</h3>
+          <canvas id="chart-ingresos-gastos"></canvas>
+        </div>
+
+        <!-- Resumen por manicurista -->
+        <div class="manicuristas-summary">
+          <h3>👩 Resumen por Manicurista</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Manicurista</th>
+                  <th>Servicios</th>
+                  <th>Ingresos Generados</th>
+                  <th>Comisión</th>
+                  <th>Deducciones</th>
+                  <th>💰 Total a Pagar</th>
+                </tr>
+              </thead>
+              <tbody id="dash-manicuristas-tbody">
+                <tr>
+                  <td colspan="7" style="text-align:center;">Cargando...</td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr style="font-weight: bold; background-color: #f8f9fa;">
+                  <td colspan="2">TOTAL</td>
+                  <td id="dash-man-total-servicios">0</td>
+                  <td id="dash-man-total-ingresos" class="text-success">$0</td>
+                  <td id="dash-man-total-comision" class="text-warning">$0</td>
+                  <td id="dash-man-total-deducciones" class="text-danger">$0</td>
+                  <td id="dash-man-total-pagar" style="color: #007bff; font-size: 1.1em;">$0</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: AGENDAMIENTO -->
+      <section id="seccion-agendamiento" class="content-section active">
+        <!-- Filtros -->
+        <!-- Filtros Mejorados Agendamiento -->
+        <div class="filters-container"
+          style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+          <div style="display: flex; gap: 1rem; margin-bottom: 0; flex-wrap: wrap; align-items: flex-end;">
+
+            <!-- Selector de Tipo de Filtro -->
+            <div class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Filtrar
+                por:</label>
+              <select id="agendamiento-filtro-periodo" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                onchange="cambiarPeriodoAgendamiento()">
+                <option value="dia">Día Específico</option>
+                <option value="mes">Mes</option>
+                <option value="semana">Semana</option>
+                <option value="rango">Rango de Fechas</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Día (Visible por defecto) -->
+            <div id="agendamiento-grupo-dia" class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Fecha:</label>
+              <input type="date" id="filtro-fecha" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+            </div>
+
+            <!-- Filtro por Mes (Oculto) -->
+            <div id="agendamiento-grupo-mes" class="form-group" style="min-width: 150px; display: none;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Mes:</label>
+              <select id="agendamiento-filtro-mes" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Semana (Oculto) -->
+            <div id="agendamiento-grupo-semana" class="form-group" style="min-width: 200px; display: none;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Semana:</label>
+              <select id="agendamiento-filtro-semana" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <!-- Se llenará dinámicamente -->
+              </select>
+            </div>
+
+            <!-- Año (Oculto en modo día) -->
+            <div id="agendamiento-grupo-anio" class="form-group" style="min-width: 100px; display: none;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Año:</label>
+              <select id="agendamiento-filtro-anio" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                onchange="cambiarPeriodoAgendamiento()">
+                <!-- JS -->
+              </select>
+            </div>
+
+            <!-- Filtro por Rango (Oculto) -->
+            <div id="agendamiento-grupo-rango" class="responsive-filter-container"
+              style="display: none; flex: 1; min-width: 300px;">
+              <div class="responsive-date-row">
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Desde:</label>
+                  <input type="date" id="agendamiento-fecha-inicio" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Hasta:</label>
+                  <input type="date" id="agendamiento-fecha-fin" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Estado -->
+            <div class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Estado:</label>
+              <select id="filtro-estado" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="confirmada">Confirmada</option>
+                <option value="completada">Completada</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </div>
+
+            <!-- Manicurista -->
+            <div class="form-group" style="min-width: 150px;">
+              <label
+                style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Manicurista:</label>
+              <select id="filtro-manicurista" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Todas</option>
+              </select>
+            </div>
+
+            <!-- Botones -->
+            <div class="form-group">
+              <button class="btn btn-primary" onclick="aplicarFiltros()"
+                style="padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>🔍</span> Filtrar
+              </button>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-text" onclick="limpiarFiltros()" style="padding: 0.6rem;">Limpiar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabla de Citas -->
+        <div class="table-container">
+          <div id="citas-loader" class="loader-center">
+            <div class="spinner"></div>
+            <p>Cargando citas...</p>
+          </div>
+
+          <table id="tabla-citas" class="data-table hidden">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Cliente</th>
+                <th>Teléfono</th>
+                <th>Manicurista</th>
+                <th>Estado</th>
+                <th>Monto</th>
+                <th>Método Pago</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="citas-tbody">
+              <!-- Se llena dinámicamente -->
+            </tbody>
+          </table>
+
+          <div id="citas-vacio" class="empty-state hidden">
+            <p class="empty-icon">📅</p>
+            <h3>No hay citas</h3>
+            <p>No se encontraron citas con los filtros seleccionados</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: AGENDA (Calendario) -->
+      <section id="seccion-agenda" class="content-section">
+        <!-- Header de Agenda -->
+        <div class="agenda-header">
+          <div class="agenda-controles">
+            <div class="vista-toggle">
+              <button id="btn-vista-semanal" class="btn-toggle active" onclick="cambiarVistaAgenda('semanal')">
+                Semanal
+              </button>
+              <button id="btn-vista-mensual" class="btn-toggle" onclick="cambiarVistaAgenda('mensual')">
+                Mensual
+              </button>
+            </div>
+            <div class="navegacion-fecha">
+              <button class="btn-nav" onclick="navegarAgenda(-1)">◀</button>
+              <span id="agenda-fecha-titulo">Enero 2026</span>
+              <button class="btn-nav" onclick="navegarAgenda(1)">▶</button>
+              <button class="btn-hoy" onclick="irAHoy()">Hoy</button>
+            </div>
+          </div>
+          <div class="agenda-filtros">
+            <label>Manicurista:</label>
+            <select id="agenda-filtro-manicurista" class="filter-input" onchange="cargarAgenda()">
+              <option value="">Todas</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Calendario Semanal -->
+        <div id="calendario-semanal" class="calendario-container">
+          <div id="agenda-loader" class="loader-center">
+            <div class="spinner"></div>
+            <p>Cargando agenda...</p>
+          </div>
+          <div id="leyenda-manicuristas-container"></div>
+          <div id="calendario-semanal-grid" class="calendario-grid hidden"></div>
+        </div>
+
+        <!-- Calendario Mensual -->
+        <div id="calendario-mensual" class="calendario-container hidden">
+          <div id="calendario-mensual-grid" class="calendario-mensual-grid"></div>
+        </div>
+      </section>
+
+
+      <!-- SECCIÓN: SERVICIOS -->
+      <section id="seccion-servicios" class="content-section">
+        <div class="section-header">
+          <h3>Gestión de Servicios</h3>
+
+        </div>
+
+        <div class="table-container">
+          <table class="data-table" id="tabla-servicios">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Duración</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="servicios-body">
+              <!-- Dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: HORARIOS -->
+      <section id="seccion-horarios" class="content-section">
+        <!-- Selector de Manicurista -->
+        <div class="horarios-header">
+          <div class="form-group">
+            <label>Manicurista:</label>
+            <select id="horarios-manicurista" class="form-input" onchange="cargarHorarios()">
+              <option value="">Seleccionar manicurista</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tabla de Horarios Semanales -->
+        <div class="horarios-section">
+          <div class="section-header">
+            <h3>📅 Horario Semanal</h3>
+            <div style="display: flex; gap: 10px;">
+              <button class="btn btn-secondary btn-sm" onclick="abrirModalCopiarHorario()">
+                📋 Copiar
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="abrirModalHorario()">
+                + Agregar Día
+              </button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="tabla-horarios">
+              <thead>
+                <tr>
+                  <th>Día</th>
+                  <th>Hora Inicio</th>
+                  <th>Hora Fin</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="horarios-body">
+                <tr>
+                  <td colspan="5" class="text-center">Selecciona una manicurista</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Tabla de Excepciones -->
+        <div class="horarios-section">
+          <div class="section-header">
+            <h3>🚫 Días Bloqueados / Excepciones</h3>
+            <button class="btn btn-secondary btn-sm" onclick="abrirModalExcepcion()">
+              + Agregar Excepción
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="data-table" id="tabla-excepciones">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Todo el día</th>
+                  <th>Horario</th>
+                  <th>Motivo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="excepciones-body">
+                <tr>
+                  <td colspan="5" class="text-center">Selecciona una manicurista</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: USUARIOS -->
+      <section id="seccion-usuarios" class="content-section">
+        <div class="section-header">
+          <h3>👥 Gestión de Usuarios</h3>
+
+        </div>
+
+        <div class="table-container">
+          <table class="data-table" id="tabla-usuarios">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="usuarios-body">
+              <!-- Dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: COMISIONES -->
+      <section id="seccion-comisiones" class="content-section">
+        <div class="section-header">
+          <h3>💰 Comisiones y Pagos</h3>
+        </div>
+
+        <!-- View Toggle Removed as per user request (Redundant with Sidebar) -->
+
+        <!-- Filtros Comisiones Mejorados -->
+        <div class="filters-container"
+          style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+          <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: flex-end;">
+
+            <!-- Selector de Tipo de Filtro -->
+            <div id="container-filtro-tipo" class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Filtrar
+                por:</label>
+              <select id="filtro-comision-tipo" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                onchange="cambiarTipoFiltroComision()">
+                <option value="mes">Mes</option>
+                <option value="semana">Semana</option>
+                <option value="rango">Rango de Fechas</option>
+                <option value="conciliacion">Auditoría de Cuadres</option>
+              </select>
+            </div>
+
+            <!-- Manicurista -->
+            <div class="form-group" style="min-width: 200px;">
+              <label
+                style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Manicurista:</label>
+              <select id="filtro-comision-manicurista" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;"
+                onchange="aplicarFiltrosComisiones()">
+                <option value="">Todas</option>
+                <!-- Dinámico -->
+              </select>
+            </div>
+
+            <!-- Filtro por Mes (visible por defecto) -->
+            <div id="filtro-mes-container" class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Mes:</label>
+              <select id="filtro-comision-mes" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Todo el año</option>
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Semana (oculto por defecto) -->
+            <div id="filtro-semana-container" class="form-group" style="min-width: 200px; display: none;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Semana:</label>
+              <select id="filtro-comision-semana" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <!-- Se llenará dinámicamente -->
+              </select>
+            </div>
+
+            <!-- Filtro por Rango (oculto por defecto) -->
+            <div id="filtro-rango-container" class="responsive-filter-container"
+              style="display: none; flex: 1; min-width: 300px;">
+              <div class="responsive-date-row">
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Desde:</label>
+                  <input type="date" id="filtro-comision-desde" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Hasta:</label>
+                  <input type="date" id="filtro-comision-hasta" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+              </div>
+            </div>
+
+            <!-- Año (siempre visible) -->
+            <div class="form-group" style="min-width: 120px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Año:</label>
+              <select id="filtro-comision-anio" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <!-- Se llenará dinámicamente -->
+              </select>
+            </div>
+
+            <!-- Botón Aplicar -->
+            <div class="form-group">
+              <button class="btn btn-primary"
+                style="padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.5rem;"
+                onclick="aplicarFiltrosComisiones()">
+                <span>🔍</span> Aplicar
+              </button>
+            </div>
+          </div>
+
+          <!-- Info Text -->
+          <div style="font-size: 0.85rem; color: #666; padding-top: 0.5rem; border-top: 1px solid #eee;">
+            <span style="margin-right: 1rem;">ℹ️ Solo se muestran citas <strong>Completadas</strong></span>
+            <span>💡 Se liquida semanalmente</span>
+          </div>
+        </div>
+
+        <!-- Tabla Comisiones (Default) -->
+        <div class="table-container" id="container-tabla-comisiones">
+          <table class="data-table" id="tabla-comisiones">
+            <thead>
+              <tr>
+                <th>Manicurista</th>
+                <th>Total Ventas</th>
+                <th>% Comisión</th>
+                <th>Total Comisión</th>
+                <th>Pagado</th>
+                <th>Pendiente</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="comisiones-body">
+              <!-- Dinámico -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tabla Conciliación (Hidden by default) -->
+        <div class="table-container hidden" id="container-tabla-conciliacion">
+          <div class="alert alert-info" style="margin-bottom: 15px;">
+            Comparativa entre lo registrado por el sistema (Citas Completadas) y lo reportado manualmente por la
+            manicurista.
+          </div>
+          <table class="data-table" id="tabla-conciliacion">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Manicurista</th>
+                <th>Venta Sistema</th>
+                <th>Reportado Manicurista</th>
+                <th>Diferencia</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="conciliacion-body">
+              <tr>
+                <td colspan="6" class="text-center">Seleccione filtros y haga clic en Aplicar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- MODAL: DETALLE COMISIÓN / PAGAR -->
+      <div id="modal-detalle-comision" class="modal-overlay hidden">
+        <div class="modal-content modal-lg">
+          <div class="modal-header">
+            <h3>Detalle de Comisiones: <span id="detalle-manicurista-nombre"></span></h3>
+            <button class="modal-close" onclick="cerrarModalDetalleComision()">✕</button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-4">
+              <p><strong>Porcentaje Actual:</strong> <span id="detalle-porcentaje"></span>%</p>
+              <p class="text-xs text-muted">Nota: El porcentaje se aplica al precio de la cita.</p>
+            </div>
+            <div class="table-container" style="max-height: 500px; overflow-y: auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="check-todos-pagar" onchange="toggleTodosPagar()"></th>
+                    <th>Fecha</th>
+                    <th>Servicio</th>
+                    <th>Precio</th>
+                    <th>Comisión</th>
+                    <th>Estado Pago</th>
+                  </tr>
+                </thead>
+                <tbody id="detalle-comision-body">
+                  <!-- JS -->
+                </tbody>
+              </table>
+            </div>
+            <div class="resumen-pago mt-4 text-right">
+              <h4>Total a Pagar: $<span id="total-a-pagar">0</span></h4>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="cerrarModalDetalleComision()">Cerrar</button>
+            <button class="btn btn-primary" onclick="pagarComisionesSeleccionadas()" id="btn-pagar-comisiones" disabled>
+              Registrar Pago
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MODAL: CONFIGURAR COMISIÓN -->
+      <div id="modal-config-comision" class="modal-overlay hidden">
+        <div class="modal-content modal-sm">
+          <div class="modal-header">
+            <h3>Configurar Comisión</h3>
+            <button class="modal-close" onclick="cerrarModalConfigComision()">✕</button>
+          </div>
+          <div class="modal-body">
+            <input type="hidden" id="config-email-manicurista">
+            <p class="mb-4">Configurar porcentaje para: <strong id="config-nombre-manicurista"></strong></p>
+            <div class="form-group">
+              <label>Porcentaje (%) *</label>
+              <input type="number" id="config-porcentaje" class="form-input" min="0" max="100" step="1" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="cerrarModalConfigComision()">Cancelar</button>
+            <button class="btn btn-primary" onclick="guardarConfiguracionComision()">Guardar</button>
+          </div>
+        </div>
+      </div>
+
+
+
+      <!-- SECCIÓN: GALERÍA (Placeholder) -->
+      <!-- SECCIÓN: GALERÍA -->
+      <section id="seccion-galeria" class="content-section">
+        <div class="filters-bar">
+          <!-- Podríamos agregar filtro por servicio aquí si es necesario -->
+          <div class="filter-group">
+            <label>Total Imágenes:</label>
+            <span id="galeria-total-count" class="badge">0</span>
+          </div>
+        </div>
+
+        <div id="galeria-grid" class="galeria-grid">
+          <!-- Las imágenes se cargarán aquí -->
+          <p style="grid-column: 1/-1; text-align: center; color: #666;">Cargando galería...</p>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: GASTOS -->
+      <section id="seccion-gastos" class="content-section">
+        <div class="filters-container"
+          style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 1.5rem;">
+          <div style="display: flex; gap: 1rem; margin-bottom: 0; flex-wrap: wrap; align-items: flex-end;">
+
+            <!-- Selector de Tipo de Filtro -->
+            <div class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Filtrar
+                por:</label>
+              <select id="gastos-filtro-periodo" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" onchange="cambiarPeriodoGastos()">
+                <option value="mes">Mes</option>
+                <option value="semana">Semana</option>
+                <option value="rango">Rango de Fechas</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Mes (visible por defecto) -->
+            <div id="gastos-grupo-mes" class="form-group" style="min-width: 150px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Mes:</label>
+              <select id="gastos-filtro-mes" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="1">Enero</option>
+                <option value="2">Febrero</option>
+                <option value="3">Marzo</option>
+                <option value="4">Abril</option>
+                <option value="5">Mayo</option>
+                <option value="6">Junio</option>
+                <option value="7">Julio</option>
+                <option value="8">Agosto</option>
+                <option value="9">Septiembre</option>
+                <option value="10">Octubre</option>
+                <option value="11">Noviembre</option>
+                <option value="12">Diciembre</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Semana (oculto por defecto) -->
+            <div id="gastos-grupo-semana" class="form-group" style="min-width: 200px; display: none;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Semana:</label>
+              <select id="gastos-filtro-semana" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <!-- Se llenará dinámicamente -->
+              </select>
+            </div>
+
+            <!-- Año (siempre visible) -->
+            <div id="gastos-grupo-anio" class="form-group" style="min-width: 120px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Año:</label>
+              <select id="gastos-filtro-anio" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;" onchange="cambiarPeriodoGastos()">
+                <option value="2025">2025</option>
+                <option value="2026" selected>2026</option>
+              </select>
+            </div>
+
+            <!-- Filtro por Rango (oculto por defecto) -->
+            <div id="gastos-grupo-rango" style="display: none; flex: 1; min-width: 300px;">
+              <div style="display: flex; gap: 1rem; align-items: flex-end;">
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Desde:</label>
+                  <input type="date" id="gastos-fecha-inicio" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+                <div class="form-group" style="flex: 1;">
+                  <label
+                    style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Hasta:</label>
+                  <input type="date" id="gastos-fecha-fin" class="form-control"
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                </div>
+              </div>
+            </div>
+            <!-- Filtro por Tipo -->
+            <div class="form-group" style="min-width: 180px;">
+              <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; font-size: 0.9rem;">Tipo:</label>
+              <select id="gastos-filtro-tipo" class="form-control"
+                style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                <option value="">Todos</option>
+                <option value="gasto_local">Gasto Local</option>
+                <option value="deduccion_manicurista">Deducción Manicurista</option>
+              </select>
+            </div>
+
+            <!-- Botón Aplicar -->
+            <div class="form-group">
+              <button class="btn btn-primary"
+                style="padding: 0.6rem 1.5rem; display: flex; align-items: center; gap: 0.5rem;"
+                onclick="cargarGastos()">
+                <span>🔍</span> Aplicar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Display -->
+        <div style="margin-bottom: 1rem;">
+          <div class="filter-group">
+            <span class="badge badge-danger" id="gastos-total-display">Total: $0</span>
+          </div>
+        </div>
+
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Manicurista</th>
+                <th>Monto</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="gastos-tbody">
+              <tr>
+                <td colspan="6" style="text-align: center;">Cargando gastos...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL: NUEVO/EDITAR GASTO -->
+  <div id="modal-gasto" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <h3 id="modal-gasto-titulo">Nuevo Gasto</h3>
+        <button class="modal-close" onclick="cerrarModalGasto()">✕</button>
+      </div>
+      <form id="form-gasto" class="modal-body">
+        <input type="hidden" id="gasto-id">
+
+        <div class="form-group">
+          <label>Descripción *</label>
+          <input type="text" id="gasto-descripcion" class="form-input" required
+            placeholder="Ej: Pago de luz, Material, etc.">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Monto *</label>
+            <input type="number" id="gasto-monto" class="form-input" required min="0" step="100">
+          </div>
+          <div class="form-group">
+            <label>Fecha *</label>
+            <input type="date" id="gasto-fecha" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo *</label>
+          <select id="gasto-tipo" class="form-input" required onchange="toggleManicuristaGasto()">
+            <option value="gasto_local">💼 Gasto del Local</option>
+            <option value="deduccion_manicurista">👩 Deducción a Manicurista</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="grupo-gasto-manicurista" style="display: none;">
+          <label>Manicurista *</label>
+          <select id="gasto-manicurista" class="form-input">
+            <option value="">Seleccione...</option>
+          </select>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalGasto()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarGasto()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: NUEVA/EDITAR CITA -->
+  <div id="modal-cita" class="modal-overlay hidden">
+    <div class="modal-large">
+      <div class="modal-header">
+        <h3 id="modal-cita-titulo">Nueva Cita</h3>
+        <button class="modal-close" onclick="cerrarModalCita()">✕</button>
+      </div>
+
+      <form id="form-cita" class="modal-body">
+        <input type="hidden" id="cita-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cita-cliente-search">Cliente</label>
+            <input type="text" id="cita-cliente-search" list="lista-clientes" class="form-input"
+              placeholder="Buscar cliente o escribir nombre...">
+            <datalist id="lista-clientes"></datalist>
+            <input type="hidden" id="cita-cliente">
+          </div>
+
+          <!-- Nuevo Campo Teléfono (Opcional/Auto-llenado) -->
+          <div class="form-group">
+            <label for="cita-telefono">Teléfono de Contacto</label>
+            <input type="tel" id="cita-telefono" class="form-input" placeholder="Ej: 3001234567">
+          </div>
+
+          <div class="form-group">
+            <label>Manicurista *</label>
+            <select id="cita-manicurista" class="form-input" required>
+              <option value="">Seleccionar manicurista</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" style="flex: 2;">
+            <label>Servicio *</label>
+            <select id="cita-servicio" class="form-input" required>
+              <option value="">Seleccionar servicio</option>
+            </select>
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Precio *</label>
+            <input type="number" id="cita-precio" class="form-input" min="0" step="100" required placeholder="0"
+              oninput="actualizarResumenPagos()" />
+          </div>
+          <div class="form-group" style="flex: 0.5;">
+            <label>Min *</label>
+            <input type="number" id="cita-duracion" class="form-input" min="15" step="15" required />
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Fecha *</label>
+            <input type="date" id="cita-fecha" class="form-input" required />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Hora de Inicio *</label>
+            <select id="cita-hora" class="form-input" required disabled>
+              <option value="">
+                Selecciona manicurista, servicio y fecha
+              </option>
+            </select>
+            <small class="form-help">Primero selecciona manicurista, servicio y fecha</small>
+          </div>
+
+          <div class="form-group">
+            <label>Estado</label>
+            <select id="cita-estado" class="form-input" onchange="toggleMetodoPago()">
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="completada">Completada</option>
+              <option value="cancelada">Cancelada</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="grupo-metodo-pago" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label style="margin:0;">Pagos *</label>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="check-pago-mixto" onchange="togglePagoMixto()">
+                <label for="check-pago-mixto"
+                  style="margin:0; font-weight: normal; font-size: 0.9rem; cursor: pointer;">Pago Mixto</label>
+              </div>
+            </div>
+
+            <div id="pagos-container">
+              <!-- Dynamic payment rows will be added here -->
+            </div>
+
+            <button type="button" id="btn-agregar-pago" class="btn btn-secondary" onclick="agregarFilaPago()"
+              style="margin-top: 0.5rem; font-size: 0.85rem; display: none; width: 100%;">
+              <i class="fa-solid fa-plus"></i> Agregar otro pago
+            </button>
+            <div id="pagos-resumen"
+              style="margin-top: 0.75rem; padding: 0.75rem; background: #f8f9fa; border-radius: 4px; font-size: 0.9rem;">
+              <div style="display: flex; justify-content: space-between;">
+                <span>Valor de la cita:</span>
+                <strong id="pagos-total-cita">$0</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Total pagado:</span>
+                <strong id="pagos-total-pagado" style="color: #28a745;">$0</strong>
+              </div>
+              <div
+                style="display: flex; justify-content: space-between; border-top: 1px solid #dee2e6; padding-top: 0.5rem; margin-top: 0.5rem;">
+                <span>Restante:</span>
+                <strong id="pagos-restante" style="color: #dc3545;">$0</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Notas del Cliente</label>
+          <textarea id="cita-notas-cliente" class="form-input" rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Notas de la Manicurista</label>
+          <textarea id="cita-notas-manicurista" class="form-input" rows="3"></textarea>
+        </div>
+      </form>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalCita()">
+          Cancelar
+        </button>
+        <button class="btn btn-primary" onclick="guardarCita()" id="btn-guardar-cita">
+          Guardar Cita
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- MODAL: HORARIO -->
+  <div id="modal-horario" class="modal-overlay hidden">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3 id="modal-horario-titulo">Agregar Horario</h3>
+        <button class="modal-close" onclick="cerrarModalHorario()">✕</button>
+      </div>
+      <form id="form-horario" class="modal-body">
+        <input type="hidden" id="horario-id" />
+        <div class="form-group">
+          <label>Día de la semana *</label>
+          <select id="horario-dia" class="form-input" required>
+            <option value="">Seleccionar día</option>
+            <option value="1">Lunes</option>
+            <option value="2">Martes</option>
+            <option value="3">Miércoles</option>
+            <option value="4">Jueves</option>
+            <option value="5">Viernes</option>
+            <option value="6">Sábado</option>
+            <option value="7">Domingo</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Hora Inicio *</label>
+            <input type="time" id="horario-inicio" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label>Hora Fin *</label>
+            <input type="time" id="horario-fin" class="form-input" required />
+          </div>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalHorario()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarHorario()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SERVICIO -->
+  <div id="modal-servicio" class="modal-overlay hidden">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3 id="modal-servicio-titulo">Nuevo Servicio</h3>
+        <button class="modal-close" onclick="cerrarModalServicio()">✕</button>
+      </div>
+      <form id="form-servicio" class="modal-body">
+        <input type="hidden" id="servicio-id" />
+        <div class="form-group">
+          <label>Nombre del Servicio *</label>
+          <input type="text" id="servicio-nombre" class="form-input" required placeholder="Ej: Manicura Tradicional" />
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label>Precio *</label>
+            <input type="number" id="servicio-precio" class="form-input" required min="0" step="100" />
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Duración (min) *</label>
+            <input type="number" id="servicio-duracion" class="form-input" required min="15" step="15" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="servicio-descripcion" class="form-input" rows="2"
+            placeholder="Detalles del procedimiento..."></textarea>
+        </div>
+        <!-- Observaciones removido a pedido -->
+      </form>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalServicio()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarServicio()">Guardar</button>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- MODAL: USUARIO -->
+  <div id="modal-usuario" class="modal-overlay hidden">
+    <div class="modal-content modal-md">
+      <div class="modal-header">
+        <h3 id="modal-usuario-titulo">Nuevo Usuario</h3>
+        <button class="modal-close" onclick="cerrarModalUsuario()">✕</button>
+      </div>
+      <form id="form-usuario" class="modal-body">
+        <input type="hidden" id="usuario-id" />
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nombres *</label>
+            <input type="text" id="usuario-nombre" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label>Apellidos</label>
+            <input type="text" id="usuario-apellido" class="form-input" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Correo Electrónico *</label>
+            <input type="email" id="usuario-email" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label>Rol *</label>
+            <select id="usuario-rol" class="form-input" required>
+              <option value="" disabled selected>Cargando roles...</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="usuario-password" class="form-input"
+              placeholder="Dejar en blanco para no cambiar" />
+            <p class="text-xs text-muted" id="usuario-password-hint">Min. 6 caracteres</p>
+          </div>
+          <div class="form-group">
+            <label>Confirmar Contraseña</label>
+            <input type="password" id="usuario-password-confirm" class="form-input"
+              placeholder="Repite la contraseña" />
+            <p id="password-match-msg" class="text-xs"></p>
+          </div>
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalUsuario()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarUsuario()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: EXCEPCIÓN -->
+  <div id="modal-excepcion" class="modal-overlay hidden">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>Agregar Excepción</h3>
+        <button class="modal-close" onclick="cerrarModalExcepcion()">✕</button>
+      </div>
+      <form id="form-excepcion" class="modal-body">
+        <input type="hidden" id="excepcion-id" />
+        <div class="form-group">
+          <label>Fecha *</label>
+          <input type="date" id="excepcion-fecha" class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="excepcion-todo-dia" checked onchange="toggleHorasExcepcion()" />
+            Bloquear todo el día
+          </label>
+        </div>
+        <div id="excepcion-horas" class="form-row hidden">
+          <div class="form-group">
+            <label>Hora Inicio</label>
+            <input type="time" id="excepcion-inicio" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label>Hora Fin</label>
+            <input type="time" id="excepcion-fin" class="form-input" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Motivo</label>
+          <input type="text" id="excepcion-motivo" class="form-input" placeholder="Ej: Vacaciones, Cita médica..." />
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalExcepcion()">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarExcepcion()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: COPIAR HORARIO -->
+  <div id="modal-copiar-horario" class="modal-overlay hidden">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>Copiar Horario</h3>
+        <button class="modal-close" onclick="cerrarModalCopiarHorario()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-4">
+          Copiar el horario de <strong id="copiar-origen-nombre"></strong> a:
+        </p>
+        <div class="form-group">
+          <label>Manicurista Destino *</label>
+          <select id="copiar-destino-email" class="form-input">
+            <!-- Filled by JS -->
+          </select>
+        </div>
+        <div class="alert alert-warning">
+          ⚠️ Esto <strong>eliminará</strong> todos los horarios actuales de la manicurista destino y los reemplazará.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalCopiarHorario()">Cancelar</button>
+        <button class="btn btn-primary" onclick="copiarHorario()">Copiar y Reemplazar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMACIÓN PAGO COMISIÓN -->
+  <div id="modal-confirmacion-pago" class="modal-overlay hidden" style="z-index: 10000;">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>Confirmar Pago</h3>
+        <button class="modal-close" onclick="cerrarModalConfirmacionPago()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p>¿Estás seguro de que deseas registrar el pago de comisiones?</p>
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center;">
+          <p style="margin: 0; color: #666; font-size: 0.9rem;">Total a Pagar:</p>
+          <p id="monto-confirmacion-pago"
+            style="margin: 5px 0 0; font-size: 1.5rem; font-weight: bold; color: var(--success-color);">$0</p>
+        </div>
+        <p style="font-size: 0.85rem; color: #666;">Las citas seleccionadas quedarán marcadas como
+          <strong>Pagadas</strong>.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalConfirmacionPago()">Cancelar</button>
+        <button class="btn btn-primary" onclick="confirmarPagoComision()">✅ Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFIRMACIÓN REVERTIR PAGO -->
+  <div id="modal-confirmacion-revertir" class="modal-overlay hidden" style="z-index: 10000;">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>Revertir Pago</h3>
+        <button class="modal-close" onclick="cerrarModalConfirmacionRevertir()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="text-align: center; margin-bottom: 15px;">
+          <span style="font-size: 3rem;">↺</span>
+        </div>
+        <p>¿Estás seguro de que deseas revertir este pago?</p>
+        <p style="font-size: 0.85rem; color: #666; margin-top: 10px;">La cita volverá a estado <strong>Pendiente de
+            Pago</strong> y se restará del total pagado.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalConfirmacionRevertir()">Cancelar</button>
+        <button class="btn btn-primary text-danger" onclick="confirmarRevertirComision()">↺ Revertir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SUBIR IMAGEN -->
+  <div id="modal-subir-imagen" class="modal-overlay hidden">
+    <div class="modal-content modal-sm">
+      <div class="modal-header">
+        <h3>Subir Nueva Imagen</h3>
+        <button class="modal-close" onclick="cerrarModalSubirImagen()">✕</button>
+      </div>
+      <form id="form-subir-imagen" class="modal-body">
+        <div class="form-group">
+          <label>Servicio Asociado *</label>
+          <select id="galeria-servicio" class="form-input" required>
+            <option value="">Cargando servicios...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Seleccionar Imagen *</label>
+          <input type="file" id="galeria-archivo" class="form-input" accept="image/*" required />
+          <p class="text-xs text-muted">Formatos: JPG, PNG, WEBP. Máx 5MB.</p>
+        </div>
+
+        <div class="form-group">
+          <label>Descripción</label>
+          <textarea id="galeria-descripcion" class="form-input" rows="2"
+            placeholder="Descripción corta del trabajo..."></textarea>
+        </div>
+
+        <!-- Preview container -->
+        <div id="galeria-preview" class="text-center mt-2 hidden">
+          <img src="" alt="Preview" style="max-height: 150px; border-radius: 8px; box-shadow: var(--shadow);">
+        </div>
+      </form>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cerrarModalSubirImagen()">Cancelar</button>
+        <button class="btn btn-primary" onclick="subirImagen()">Subir Imagen</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/dashboard-admin.js?v=2.10"></script>
+</body>
+
+</html>
